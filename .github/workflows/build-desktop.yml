@@ -1,0 +1,49 @@
+name: Build desktop apps
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    timeout-minutes: 30
+    strategy:
+      matrix:
+        include:
+          - { os: ubuntu-latest, artifact: Agent-Meter-Linux }
+          - { os: windows-latest, artifact: Agent-Meter-Windows }
+          - { os: macos-latest, artifact: Agent-Meter-macOS }
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+      - name: Package Unix
+        if: runner.os != 'Windows'
+        shell: bash
+        run: chmod +x scripts/package-unix.sh && scripts/package-unix.sh
+      - name: Package Windows
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: scripts/package-windows.ps1
+      - name: Archive Unix
+        if: runner.os != 'Windows'
+        shell: bash
+        run: cd target/dist && tar -czf "../${{ matrix.artifact }}.tar.gz" .
+      - name: Archive Windows
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: Compress-Archive -Path "target/dist/*" -DestinationPath "target/${{ matrix.artifact }}.zip"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: target/${{ matrix.artifact }}.*

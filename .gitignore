@@ -1,0 +1,40 @@
+# Maven
+target/
+
+# IDEs and local editor state
+.vscode/
+.idea/
+*.iml
+
+# Compiled and packaged artifacts
+bin/
+lib/
+*.class
+*.jar
+*.war
+*.deb
+*.rpm
+*.dmg
+*.msi
+*.exe
+
+# Operating-system files
+.DS_Store
+Thumbs.db
+
+# Logs, temporary files and local secrets
+*.log
+*.tmp
+*.swp
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+
+# Local Agent Meter data
+.agentmeter/
+agents.json
